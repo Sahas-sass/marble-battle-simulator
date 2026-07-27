@@ -1,3 +1,47 @@
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background-color: #0d0e15;
+}
+
+.arena-nav {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  background-color: #161822;
+  padding: 12px;
+  border-bottom: 1px solid #2a2d3d;
+}
+
+.nav-btn {
+  background: #252836;
+  color: #aaa;
+  border: 1px solid #3a3f58;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.nav-btn:hover {
+  background: #2f3346;
+  color: #fff;
+}
+
+.nav-btn.active {
+  background: #00adb5;
+  color: #fff;
+  border-color: #00adb5;
+}
+
+.arena-content {
+  flex: 1;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
   padding: 0;
