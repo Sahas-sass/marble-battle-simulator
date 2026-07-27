@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import Arena1 from './components/Arena'; // Your existing circle game
-import Arena2 from './components/Arena2'; // The new Plinko game
+import Arena1 from './components/Arena'; 
+import Arena2 from './components/Arena2'; 
+import Arena3 from './components/Arena3'; // The new Hexagon Escape
 import './App.css';
 
 function App() {
@@ -14,19 +15,27 @@ function App() {
           className={`nav-btn ${currentArena === 'circle' ? 'active' : ''}`}
           onClick={() => setCurrentArena('circle')}
         >
-          ⭕ Circle Arena
+          ⭕ Circle
         </button>
         <button 
           className={`nav-btn ${currentArena === 'plinko' ? 'active' : ''}`}
           onClick={() => setCurrentArena('plinko')}
         >
-          🔺 Plinko Arena
+          🔺 Plinko
+        </button>
+        <button 
+          className={`nav-btn ${currentArena === 'hexagon' ? 'active' : ''}`}
+          onClick={() => setCurrentArena('hexagon')}
+        >
+          ⬡ Hexagon
         </button>
       </div>
 
       {/* Render selected arena */}
       <div className="arena-content">
-        {currentArena === 'circle' ? <Arena1 /> : <Arena2 />}
+        {currentArena === 'circle' && <Arena1 />}
+        {currentArena === 'plinko' && <Arena2 />}
+        {currentArena === 'hexagon' && <Arena3 />}
       </div>
     </div>
   );
