@@ -1,186 +1,291 @@
+/* =========================================
+   GLOBAL RESET & FONTS
+========================================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  background-color: #050508;
+  color: #ffffff;
+  overflow: hidden; /* Prevents whole-page scrolling */
+}
+
+/* =========================================
+   MAIN APP SHELL (Top Nav + Content Area)
+========================================= */
 .main-layout {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background-color: #0d0e15;
+  background: radial-gradient(circle at top, #111322 0%, #050508 100%);
 }
 
 .arena-nav {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  background-color: #161822;
-  padding: 12px;
-  border-bottom: 1px solid #2a2d3d;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 20px;
+  background: rgba(10, 11, 16, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 100;
 }
 
 .nav-btn {
-  background: #252836;
-  color: #aaa;
-  border: 1px solid #3a3f58;
-  padding: 8px 20px;
-  border-radius: 6px;
-  font-weight: bold;
+  background: rgba(255, 255, 255, 0.03);
+  color: #8892b0;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-btn:hover {
-  background: #2f3346;
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
+  transform: translateY(-1px);
 }
 
 .nav-btn.active {
-  background: #00adb5;
+  background: linear-gradient(135deg, #00d2ff 0%, #0072ff 100%);
   color: #fff;
-  border-color: #00adb5;
+  border: none;
+  box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
 }
 
 .arena-content {
   flex: 1;
+  position: relative;
   overflow: hidden;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  background-color: #0d0e15;
-  color: #ffffff;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.app-container {
+/* =========================================
+   ARENA GRID (Side-by-Side Layout)
+========================================= */
+/* Unifying old and new container classes */
+.app-container, 
+.arena-inner-container {
   display: flex;
-  height: 100vh;
-  width: 100vw;
-}
-
-.sidebar {
-  width: 320px;
-  background-color: #161822;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  border-right: 1px solid #2a2d3d;
-  box-sizing: border-box;
-  overflow-y: auto;
-}
-
-.sidebar h2 {
-  margin: 0 0 8px 0;
-  font-size: 1.4rem;
-  color: #00adb5;
-}
-
-.control-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 0.9rem;
-  color: #ccc;
-}
-
-.control-group input[type='range'] {
+  flex-direction: row;
   width: 100%;
-  accent-color: #00adb5;
-  cursor: pointer;
+  height: 100%;
+  padding: 20px;
+  gap: 30px;
 }
 
-.color-selectors {
+/* =========================================
+   SIDEBAR CONTROLS (Glassmorphism)
+========================================= */
+.sidebar, 
+.luxury-sidebar {
+  flex: 0 0 360px; /* Fixed width on the left */
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 20px;
+  background: rgba(15, 17, 26, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 25px;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.sidebar h2, 
+.luxury-sidebar h2 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
 
-.color-picker {
+/* Base Control Groups */
+.control-group, 
+.control-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 0.85rem;
-  color: #aaa;
+  gap: 10px;
+}
+
+.control-group label,
+.slider-header label {
+  color: #8892b0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Sliders */
+input[type="range"],
+.modern-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  outline: none;
+  margin-top: 5px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #00d2ff;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
+  transition: 0.2s;
+}
+
+/* Team Rosters & Color Pickers */
+.color-selectors,
+.team-customizer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.color-picker,
+.luxury-team-row,
+.team-config-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 10px 15px;
+  border-radius: 12px;
+}
+
+.color-picker label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
   flex: 1;
 }
 
-.color-picker input[type='color'] {
-  width: 100%;
-  height: 38px;
+/* Color inputs */
+input[type="color"] {
+  -webkit-appearance: none;
   border: none;
-  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   cursor: pointer;
   background: transparent;
 }
-
-.btn {
-  padding: 12px 18px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border: none;
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+input[type="color"]::-webkit-color-swatch {
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.btn-primary {
-  background-color: #00adb5;
-  color: #fff;
-}
-.btn-primary:hover {
-  background-color: #008b91;
-}
-
-.btn-secondary {
-  background-color: #393e46;
-  color: #fff;
-}
-.btn-secondary:hover {
-  background-color: #2e3238;
-}
-
-.btn-success {
-  background-color: #00c853;
-  color: #fff;
-}
-.btn-success:hover {
-  background-color: #00a843;
-}
-
-.btn-record {
-  background-color: #ff2e63;
-  color: #fff;
-}
-.btn-record:hover {
-  background-color: #d82350;
-}
-
-.scoreboard {
-  background: #1f2230;
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid #2a2d3d;
-  margin-top: auto;
-}
-
-.team-score {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin: 6px 0;
-}
-
-.stage-wrapper {
+/* Text Inputs */
+input[type="text"],
+.luxury-text-input {
   flex: 1;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+input[type="text"]:focus {
+  border-color: #00d2ff;
+  box-shadow: 0 0 8px rgba(0, 210, 255, 0.2);
+}
+
+/* Main Action Buttons */
+.btn,
+.action-btn-primary {
+  width: 100%;
+  padding: 16px;
+  margin-top: auto;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-record,
+.action-btn-primary:not(:disabled) {
+  background: linear-gradient(135deg, #ff0055 0%, #ff0088 100%);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(255, 0, 85, 0.3);
+}
+
+.btn-record:hover,
+.action-btn-primary:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(255, 0, 85, 0.5);
+}
+
+.btn-secondary,
+.btn:disabled,
+.action-btn-primary:disabled {
+  background: #1f2235;
+  color: #8892b0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* =========================================
+   SIMULATION CANVAS AREA (Right Side)
+========================================= */
+.stage-wrapper,
+.simulation-viewport {
+  flex: 1; /* Takes up all remaining space */
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #090a0f;
+  background: rgba(5, 5, 8, 0.5);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+.canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 
+              0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .canvas-container canvas {
-  aspect-ratio: 9 / 16;
-  max-height: 92vh;
-  border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+  display: block; /* Removes weird inline-block margins */
 }
