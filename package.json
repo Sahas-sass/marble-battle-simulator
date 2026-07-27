@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "h264-mp4-encoder": "^1.0.12",
     "matter-js": "^0.20.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
