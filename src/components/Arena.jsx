@@ -7,29 +7,32 @@ export default function Arena() {
   const renderRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
-  const timerIntervalRef = useRef(null);
+  
+  // Timers
+  const raceTimerRef = useRef(null);
+  const countdownTimerRef = useRef(null);
 
   // --- STATE ---
   const [activeTeams, setActiveTeams] = useState(2);
   const [marbleCount, setMarbleCount] = useState(1);
   const [teamColors, setTeamColors] = useState(['#00ff87', '#ff0055', '#00d2ff', '#ffb700', '#b700ff']);
   
-  const [gameStatus, setGameStatus] = useState('idle'); // 'idle' | 'running' | 'finished'
+  const [gameStatus, setGameStatus] = useState('idle'); // 'idle' | 'countdown' | 'running' | 'finished'
   const [scores, setScores] = useState([0, 0, 0, 0, 0]);
   const [timeLeft, setTimeLeft] = useState(30);
 
-  // --- REFS FOR MATTER.JS RENDER LOOP ---
-  // (We need refs because Matter.js event listeners don't always get fresh React state)
+  // --- REFS FOR RENDER LOOP ---
   const scoresRef = useRef([0, 0, 0, 0, 0]);
   const timeRef = useRef(30);
   const statusRef = useRef('idle');
   const activeTeamsRef = useRef(2);
   const teamColorsRef = useRef(teamColors);
+  const preGameTimeRef = useRef(4); // 4 = Select Team, 3-2-1 = Countdown
+  const fireworksRef = useRef([]); // Holds firework particles
 
   const width = 540;
   const height = 960;
 
-  // Sync state to refs for the canvas renderer
   useEffect(() => { activeTeamsRef.current = activeTeams; }, [activeTeams]);
   useEffect(() => { teamColorsRef.current = teamColors; }, [teamColors]);
   useEffect(() => { scoresRef.current = scores; }, [scores]);
@@ -37,7 +40,7 @@ export default function Arena() {
   useEffect(() => { statusRef.current = gameStatus; }, [gameStatus]);
 
   useEffect(() => {
-    const { Engine, Render, Runner, Bodies, Composite, Events } = Matter;
+    const { Engine, Render, Runner, Bodies, Composite, Events, Body } = Matter;
 
     const engine = Engine.create();
     engine.world.gravity.y = 0;
@@ -46,11 +49,7 @@ export default function Arena() {
     const render = Render.create({
       element: sceneRef.current,
       engine: engine,
-      options: {
-        width, height,
-        wireframes: false,
-        background: '#12131c'
-      }
+      options: { width, height, wireframes: false, background: '#12131c' }
     });
     renderRef.current = render;
 
@@ -67,78 +66,111 @@ export default function Arena() {
           center.x + Math.cos(angle) * arenaRadius,
           center.y + Math.sin(angle) * arenaRadius,
           26, 6,
-          { isStatic: true, angle: angle, render: { fillStyle: '#ffffff' } }
+          { isStatic: true, angle: angle, friction: 0, frictionStatic: 0, render: { fillStyle: '#ffffff' } }
         )
       );
     }
     Composite.add(engine.world, boundaryBodies);
 
-    // Collision Scoring
+    // Collision Scoring (with Anti-Stick Debounce)
     Events.on(engine, 'collisionStart', (event) => {
       if (statusRef.current !== 'running') return;
-
+      
+      const now = Date.now();
+      
       event.pairs.forEach((pair) => {
         const { bodyA, bodyB } = pair;
         if (bodyA.isStatic || bodyB.isStatic) {
           const marble = bodyA.isStatic ? bodyB : bodyA;
+          
           if (marble.label.startsWith('team_')) {
+            // Anti-Stick Fix: 150ms debounce so dragging against wall doesn't spam points
+            if (now - (marble.lastHitTime || 0) < 150) return;
+            marble.lastHitTime = now;
+
             const teamIndex = parseInt(marble.label.split('_')[1], 10);
-            
-            // Update ref and state
             const newScores = [...scoresRef.current];
             newScores[teamIndex]++;
             scoresRef.current = newScores;
             setScores(newScores);
+
+            // Small force repelling marble slightly toward center to prevent wall rolling
+            Body.applyForce(marble, marble.position, {
+              x: (center.x - marble.position.x) * 0.00003,
+              y: (center.y - marble.position.y) * 0.00003
+            });
           }
         }
       });
     });
 
-    // --- DRAW TEXT ON VIDEO CANVAS ---
+    // --- DRAW CUSTOM UI & FIREWORKS ON VIDEO CANVAS ---
     Events.on(render, 'afterRender', () => {
       const ctx = render.context;
       const currentStatus = statusRef.current;
-      const tLeft = timeRef.current;
-      const currentScores = scoresRef.current;
-      const active = activeTeamsRef.current;
       const colors = teamColorsRef.current;
 
-      ctx.textAlign = 'left';
-      ctx.font = 'bold 20px Inter, sans-serif';
-
-      if (currentStatus === 'running' || currentStatus === 'finished') {
-        // Draw Timer
-        ctx.fillStyle = '#ffffff';
-        ctx.textAlign = 'center';
-        ctx.font = 'bold 30px Inter';
-        ctx.fillText(`⏱️ ${tLeft}s`, width / 2, 60);
-
-        // Draw Scoreboard
-        ctx.textAlign = 'left';
-        ctx.font = 'bold 22px Inter';
-        for (let i = 0; i < active; i++) {
-          ctx.fillStyle = colors[i];
-          ctx.fillText(`Team ${i + 1}: ${currentScores[i]}`, 30, 50 + (i * 35));
-        }
-      }
-
-      // Draw Winner Screen
-      if (currentStatus === 'finished') {
+      // 1. Draw Countdown
+      if (currentStatus === 'countdown') {
+        const t = preGameTimeRef.current;
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(0, 0, width, height);
         
-        // Find highest score
-        const maxScore = Math.max(...currentScores.slice(0, active));
-        const winnerIndex = currentScores.indexOf(maxScore);
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        if (t > 3) {
+          ctx.font = 'bold 45px Inter';
+          ctx.fillText('SELECT A TEAM!', width / 2, height / 2);
+        } else if (t > 0) {
+          ctx.font = 'bold 120px Inter';
+          ctx.fillText(t, width / 2, height / 2 + 30);
+        }
+      }
+
+      // 2. Draw Timer & Scoreboard
+      if (currentStatus === 'running' || currentStatus === 'finished') {
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 30px Inter';
+        ctx.fillText(`⏱️ ${timeRef.current}s`, width / 2, 60);
+
+        ctx.textAlign = 'left';
+        ctx.font = 'bold 22px Inter';
+        for (let i = 0; i < activeTeamsRef.current; i++) {
+          ctx.fillStyle = colors[i];
+          ctx.fillText(`Team ${i + 1}: ${scoresRef.current[i]}`, 30, 50 + (i * 35));
+        }
+      }
+
+      // 3. Draw Winner Screen & Fireworks
+      if (currentStatus === 'finished') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, width, height);
+        
+        const maxScore = Math.max(...scoresRef.current.slice(0, activeTeamsRef.current));
+        const winnerIndex = scoresRef.current.indexOf(maxScore);
 
         ctx.textAlign = 'center';
-        ctx.font = 'bold 45px Inter';
+        ctx.font = 'bold 50px Inter';
         ctx.fillStyle = colors[winnerIndex];
         ctx.fillText(`🏆 TEAM ${winnerIndex + 1} WINS!`, width / 2, height / 2 - 20);
         
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 30px Inter';
         ctx.fillText(`Score: ${maxScore}`, width / 2, height / 2 + 30);
+
+        // Render Fireworks Physics
+        fireworksRef.current.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.2; // Gravity for fireworks
+          p.size *= 0.95; // Fade out
+        });
+        fireworksRef.current = fireworksRef.current.filter(p => p.size > 0.5);
       }
     });
 
@@ -151,32 +183,33 @@ export default function Arena() {
       Runner.stop(runner);
       Composite.clear(engine.world);
       Engine.clear(engine);
-      clearInterval(timerIntervalRef.current);
+      clearInterval(raceTimerRef.current);
+      clearInterval(countdownTimerRef.current);
     };
   }, []);
 
-  // Update a specific team's color
   const updateTeamColor = (index, color) => {
     const newColors = [...teamColors];
     newColors[index] = color;
     setTeamColors(newColors);
   };
 
-  // 1. START RACE & RECORDING
-  const startRaceAndRecording = () => {
-    // Reset Scores & Time
+  // --- GAMEPLAY SEQUENCE ---
+  const startRecordingSequence = () => {
+    // 1. Reset everything
     setScores([0, 0, 0, 0, 0]);
     scoresRef.current = [0, 0, 0, 0, 0];
     setTimeLeft(30);
-    setGameStatus('running');
+    fireworksRef.current = [];
+    preGameTimeRef.current = 5; // 5 -> 4(Select) -> 3,2,1
+    setGameStatus('countdown');
 
     // Clear old marbles
-    const { Composite, Bodies, Body } = Matter;
+    const { Composite } = Matter;
     const allBodies = Composite.allBodies(engineRef.current.world);
-    const marbles = allBodies.filter((b) => !b.isStatic);
-    marbles.forEach((b) => Composite.remove(engineRef.current.world, b));
+    allBodies.filter(b => !b.isStatic).forEach(b => Composite.remove(engineRef.current.world, b));
 
-    // Start Recording
+    // 2. Start Video Recorder Early
     const canvas = sceneRef.current.querySelector('canvas');
     const stream = canvas.captureStream(60);
     const mimeTypes = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9'];
@@ -199,58 +232,94 @@ export default function Arena() {
     recorder.start();
     mediaRecorderRef.current = recorder;
 
-    // Drop Marbles
+    // 3. Countdown Loop
+    countdownTimerRef.current = setInterval(() => {
+      preGameTimeRef.current -= 1;
+      
+      if (preGameTimeRef.current <= 0) {
+        clearInterval(countdownTimerRef.current);
+        setGameStatus('running');
+        dropMarbles();
+        
+        // 4. Start 30s Race Timer
+        raceTimerRef.current = setInterval(() => {
+          setTimeLeft((prev) => {
+            if (prev <= 1) {
+              endRace();
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+    }, 1000);
+  };
+
+  const dropMarbles = () => {
+    const { Composite, Bodies, Body } = Matter;
     const center = { x: width / 2, y: height / 2 };
     const newBodies = [];
     
     for (let t = 0; t < activeTeams; t++) {
       for (let m = 0; m < marbleCount; m++) {
         const marble = Bodies.circle(center.x + (Math.random() * 40 - 20), center.y + (Math.random() * 40 - 20), 12, {
-          restitution: 1.02, friction: 0, frictionAir: 0,
+          restitution: 1.05, // Extra bouncy
+          friction: 0, 
+          frictionStatic: 0,
+          frictionAir: 0,
           label: `team_${t}`,
           render: { fillStyle: teamColors[t] }
         });
         
         Body.setVelocity(marble, { 
-          x: (Math.random() - 0.5) * 15, 
-          y: (Math.random() - 0.5) * 15 
+          x: (Math.random() - 0.5) * 16, 
+          y: (Math.random() - 0.5) * 16 
         });
         newBodies.push(marble);
       }
     }
     Composite.add(engineRef.current.world, newBodies);
-
-    // Start Timer
-    timerIntervalRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          endRace();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
   };
 
-  // 2. END RACE
   const endRace = () => {
-    clearInterval(timerIntervalRef.current);
+    clearInterval(raceTimerRef.current);
     setGameStatus('finished');
 
-    // Remove physics balls to freeze the screen
     const { Composite } = Matter;
     const allBodies = Composite.allBodies(engineRef.current.world);
-    const marbles = allBodies.filter((b) => !b.isStatic);
-    marbles.forEach((b) => Composite.remove(engineRef.current.world, b));
+    allBodies.filter(b => !b.isStatic).forEach(b => Composite.remove(engineRef.current.world, b));
 
-    // Wait 2.5 seconds to show winner screen, then stop recording and download
+    // Create Fireworks
+    const maxScore = Math.max(...scoresRef.current.slice(0, activeTeamsRef.current));
+    const winIdx = scoresRef.current.indexOf(maxScore);
+    const winColor = teamColorsRef.current[winIdx];
+
+    const particles = [];
+    for(let i = 0; i < 200; i++) {
+      particles.push({
+        x: width / 2, y: height / 2,
+        vx: (Math.random() - 0.5) * 30, // Explosive burst
+        vy: (Math.random() - 0.5) * 30 - 5,
+        size: Math.random() * 6 + 2,
+        color: Math.random() > 0.5 ? winColor : '#ffffff'
+      });
+    }
+    fireworksRef.current = particles;
+
+    // Wait 4 seconds for fireworks to finish, then stop recording
     setTimeout(() => {
       if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.stop();
       }
       setGameStatus('idle');
-    }, 2500);
+    }, 4000);
   };
+
+  // UI Button logic
+  let btnText = 'Start Video Sequence 🔴🎬';
+  if (gameStatus === 'countdown') btnText = 'Counting Down... ⏳';
+  if (gameStatus === 'running') btnText = 'Race in Progress... ⏱️';
+  if (gameStatus === 'finished') btnText = 'Generating Winner Screen... 🎆';
 
   return (
     <div className="app-container">
@@ -278,11 +347,11 @@ export default function Arena() {
 
         <button 
           className={`btn ${gameStatus === 'idle' ? 'btn-record' : 'btn-secondary'}`} 
-          onClick={startRaceAndRecording}
+          onClick={startRecordingSequence}
           disabled={gameStatus !== 'idle'}
           style={{ marginTop: '20px' }}
         >
-          {gameStatus === 'idle' ? 'Start Race & Recording 🔴🏁' : 'Race in Progress... ⏱️'}
+          {btnText}
         </button>
 
       </div>
