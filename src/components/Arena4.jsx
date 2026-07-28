@@ -34,7 +34,7 @@ export default function Arena4() {
 
   const width = 540;
   const height = 960; 
-  const totalTrackHeight = 5200; // Extra length for the catch-up zone
+  const totalTrackHeight = 5200; 
   const finishLineY = totalTrackHeight - 140;
 
   const changeStatus = (newStatus) => {
@@ -53,7 +53,7 @@ export default function Arena4() {
     const { Engine, Render, Runner, Bodies, Composite, Events, Body, Vector } = Matter;
 
     const engine = Engine.create();
-    engine.world.gravity.y = 0.75; // Fast racing speed
+    engine.world.gravity.y = 0.75; 
     engineRef.current = engine;
 
     const render = Render.create({
@@ -88,7 +88,7 @@ export default function Arena4() {
         Bodies.rectangle(width-10, totalTrackHeight/2, 20, totalTrackHeight, { isStatic: true, friction: 0, render: { fillStyle: '#ffffff' } }),
       ]);
 
-      // STAGE 1: Long ZigZags & Spinners (400px - 2000px)
+      // STAGE 1: Long ZigZags & Spinners 
       for (let i = 0; i < 7; i++) {
         const isLeft = i % 2 === 0;
         const yPos = 400 + (i * 240);
@@ -111,7 +111,7 @@ export default function Arena4() {
         spinnersRef.current.push({ body: spinBlade, speed: isLeft ? 0.07 : -0.07 });
       }
 
-      // STAGE 2: Plinko Grid Drop (2200px - 3100px)
+      // STAGE 2: Plinko Grid Drop
       const pegs = [];
       for (let row = 0; row < 11; row++) {
         const isEven = row % 2 === 0;
@@ -127,7 +127,7 @@ export default function Arena4() {
       }
       Composite.add(engineRef.current.world, pegs);
 
-      // STAGE 3: Shatter Glass Brick Maze (3300px - 3800px)
+      // STAGE 3: Shatter Glass Brick Maze
       const brickRowsY = [3350, 3550, 3750];
       brickRowsY.forEach((rowY, rIdx) => {
         const bricksCount = rIdx % 2 === 0 ? 5 : 6;
@@ -143,32 +143,31 @@ export default function Arena4() {
         }
       });
 
-      // 🔥 NEW STAGE 4: LEAD-SHUFFLER CATCH-UP MAZE (4000px - 4500px)
-      // High-restitution pins and micro catch steps that delay the leader so the pack aggregates
+      // STAGE 4: LEAD-SHUFFLER BUMPERS (Fixed the 'col' typo here!)
       const shuffleBumpers = [];
       for (let r = 0; r < 4; r++) {
         const yRow = 4050 + (r * 110);
         const pinCount = r % 2 === 0 ? 4 : 3;
         const offset = r % 2 === 0 ? 80 : 130;
-        for (let c = 0; col < pinCount; c++) {
+        for (let c = 0; c < pinCount; c++) { 
           shuffleBumpers.push(Bodies.circle(offset + (c * 120), yRow, 14, {
-            isStatic: true, restitution: 1.35, render: { fillStyle: '#00ff87' } // High bounce neon pins
+            isStatic: true, restitution: 1.35, render: { fillStyle: '#00ff87' } 
           }));
         }
       }
       Composite.add(engineRef.current.world, shuffleBumpers);
 
-      // STAGE 5: Wide Funnel Entry Gates (4600px - 4850px)
+      // STAGE 5: Wide Funnel Entry Gates
       Composite.add(engineRef.current.world, [
         Bodies.rectangle(90, 4650, 240, 20, { isStatic: true, angle: 0.45, render: { fillStyle: '#ffffff' } }),
         Bodies.rectangle(width - 90, 4650, 240, 20, { isStatic: true, angle: -0.45, render: { fillStyle: '#ffffff' } }),
         Bodies.polygon(width / 2, 4820, 3, 20, { isStatic: true, restitution: 1.2, render: { fillStyle: '#ff0055' } })
       ]);
 
-      // 🏁 FINISH LINE FIX: Modeled as an ultra-thin sensor plane line across the entire track width
+      // 🏁 FINISH LINE SENSOR
       const finishLine = Bodies.rectangle(width / 2, finishLineY, width - 20, 2, {
         isStatic: true,
-        isSensor: true, // Transparent trigger lane
+        isSensor: true, 
         render: { fillStyle: '#00ff87' }
       });
       Composite.add(engineRef.current.world, finishLine);
@@ -194,12 +193,10 @@ export default function Arena4() {
           Body.setVelocity(b, { x: b.velocity.x * clamp, y: b.velocity.y * clamp });
         }
 
-        // Precise Trigger check for line plane intersection crossover
         if (b.position.y >= finishLineY && !b.hasFinished) {
           b.hasFinished = true;
           const teamIndex = parseInt(b.label.split('_')[1], 10);
           
-          // Absolute winner lock condition
           if (firstWinnerRef.current === null) {
             firstWinnerRef.current = teamIndex;
           }
@@ -287,7 +284,7 @@ export default function Arena4() {
             ctx.stroke();
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'left';
-            ctx.font = 'bold 24px Inter';
+            ctx.font = 'bold 26px Inter';
             ctx.fillText(names[i] || `Team ${i + 1}`, width / 2 - 80, yPos);
           }
         } else if (t > 0) {
@@ -306,7 +303,7 @@ export default function Arena4() {
            ctx.font = '700 14px Inter';
            ctx.fillText(`CURRENT LEADER`, width / 2, 30);
            ctx.fillStyle = colors[leaderIndexRef.current];
-           ctx.font = 'bold 24px Inter';
+           ctx.font = 'bold 26px Inter';
            ctx.fillText(`${names[leaderIndexRef.current].toUpperCase()}`, width / 2, 65);
         }
       }
