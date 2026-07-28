@@ -4,7 +4,8 @@ import Arena2 from './components/Arena2';
 import Arena3 from './components/Arena3'; 
 import Arena4 from './components/Arena4'; 
 import Arena5 from './components/Arena5'; 
-import Arena6 from './components/Arena6'; // Your brand new duplicating arena!
+import Arena6 from './components/Arena6'; 
+import Arena7 from './components/Arena7'; // DOZER CASCADE
 import './App.css';
 
 export default function App() {
@@ -14,42 +15,13 @@ export default function App() {
     <div className="main-layout">
       {/* 🧭 Top Navigation Control Dashboard */}
       <div className="arena-nav">
-        <button 
-          className={`nav-btn ${currentArena === 'circle' ? 'active' : ''}`} 
-          onClick={() => setCurrentArena('circle')}
-        >
-          ⭕ Circle
-        </button>
-        <button 
-          className={`nav-btn ${currentArena === 'plinko' ? 'active' : ''}`} 
-          onClick={() => setCurrentArena('plinko')}
-        >
-          🔺 Plinko
-        </button>
-        <button 
-          className={`nav-btn ${currentArena === 'survival' ? 'active' : ''}`} 
-          onClick={() => setCurrentArena('survival')}
-        >
-          🔵 Survival
-        </button>
-        <button 
-          className={`nav-btn ${currentArena === 'obstacle' ? 'active' : ''}`} 
-          onClick={() => setCurrentArena('obstacle')}
-        >
-          🏁 Obstacle
-        </button>
-        <button 
-          className={`nav-btn ${currentArena === 'hyper' ? 'active' : ''}`} 
-          onClick={() => setCurrentArena('hyper')}
-        >
-          🏎️ Hyper GP
-        </button>
-        <button 
-          className={`nav-btn ${currentArena === 'division' ? 'active' : ''}`} 
-          onClick={() => setCurrentArena('division')}
-        >
-          🧬 Division
-        </button>
+        <button className={`nav-btn ${currentArena === 'circle' ? 'active' : ''}`} onClick={() => setCurrentArena('circle')}>⭕ Circle</button>
+        <button className={`nav-btn ${currentArena === 'plinko' ? 'active' : ''}`} onClick={() => setCurrentArena('plinko')}>🔺 Plinko</button>
+        <button className={`nav-btn ${currentArena === 'survival' ? 'active' : ''}`} onClick={() => setCurrentArena('survival')}>🔵 Survival</button>
+        <button className={`nav-btn ${currentArena === 'obstacle' ? 'active' : ''}`} onClick={() => setCurrentArena('obstacle')}>🏁 Obstacle</button>
+        <button className={`nav-btn ${currentArena === 'hyper' ? 'active' : ''}`} onClick={() => setCurrentArena('hyper')}>🏎️ Hyper GP</button>
+        <button className={`nav-btn ${currentArena === 'division' ? 'active' : ''}`} onClick={() => setCurrentArena('division')}>🧬 Division</button>
+        <button className={`nav-btn ${currentArena === 'dozer' ? 'active' : ''}`} onClick={() => setCurrentArena('dozer')}>🪙 Dozer</button>
       </div>
 
       {/* 🏎️ Active Viewport Render Area */}
@@ -60,6 +32,7 @@ export default function App() {
         {currentArena === 'obstacle' && <Arena4 />}
         {currentArena === 'hyper' && <Arena5 />}
         {currentArena === 'division' && <Arena6 />}
+        {currentArena === 'dozer' && <Arena7 />}
       </div>
     </div>
   );
