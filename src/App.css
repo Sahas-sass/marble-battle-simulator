@@ -289,3 +289,56 @@ input[type="text"]:focus {
 .canvas-container canvas {
   display: block; /* Removes weird inline-block margins */
 }
+
+/* --- LUXURY GAMING HUD LAYOUT SYSTEM --- */
+.arena-inner-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: #050508;
+  gap: 30px;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.luxury-sidebar {
+  flex: 0 0 380px;
+  background: rgba(18, 20, 34, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.brand-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.brand-dot { width: 8px; height: 8px; background: #00d2ff; border-radius: 50%; box-shadow: 0 0 12px #00d2ff; }
+.brand-header h2 { color: #fff; font-size: 18px; letter-spacing: 2px; font-weight: 800; margin: 0; }
+
+.control-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 12px; padding: 16px; }
+.slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.slider-header label { color: #8892b0; font-size: 11px; letter-spacing: 1px; font-weight: 700; }
+.slider-badge { background: rgba(0, 210, 255, 0.1); color: #00d2ff; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+
+.modern-slider { -webkit-appearance: none; width: 100%; height: 6px; background: #1f2235; border-radius: 4px; outline: none; }
+.modern-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #00d2ff; cursor: pointer; box-shadow: 0 0 10px #00d2ff; }
+
+.section-title { color: #8892b0; font-size: 11px; letter-spacing: 1px; font-weight: 700; margin-bottom: 10px; display: block; }
+.team-customizer-list { display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; }
+
+.luxury-team-row { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); padding: 8px 12px; border-radius: 10px; }
+.color-swatch-wrapper { position: relative; width: 32px; height: 32px; border-radius: 8px; overflow: hidden; cursor: pointer; }
+.color-swatch-wrapper input[type="color"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
+.swatch-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); z-index: 1; pointer-events: none;}
+
+.luxury-text-input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-weight: 600; font-size: 14px; }
+
+.action-btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #00d2ff 0%, #0072ff 100%); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; }
+.action-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0, 114, 255, 0.4); }
+.btn-active-state { background: #1f2235 !important; color: #8892b0 !important; cursor: not-allowed; transform: none !important; box-shadow: none !important;}
+
+.simulation-viewport { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; }
