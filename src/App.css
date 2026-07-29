@@ -342,3 +342,10 @@ input[type="text"]:focus {
 .btn-active-state { background: #1f2235 !important; color: #8892b0 !important; cursor: not-allowed; transform: none !important; box-shadow: none !important;}
 
 .simulation-viewport { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; }
+
+/* Responsive fix for horizontal 16:9 Matter.js canvas */
+.tournament-canvas-fix canvas {
+  max-width: 100%;
+  height: auto !important; /* Forces the canvas height to scale relative to the constrained width */
+  display: block;
+}

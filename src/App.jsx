@@ -6,7 +6,8 @@ import Arena4 from './components/Arena4';
 import Arena5 from './components/Arena5'; 
 import Arena6 from './components/Arena6'; 
 import Arena7 from './components/Arena7'; 
-import Arena8 from './components/Arena8'; // Import Bridge Test
+import Arena8 from './components/Arena8'; 
+import Arena9 from './components/Arena9'; // 🏆 TOURNAMENT 16:9
 import './App.css';
 
 export default function App() {
@@ -23,7 +24,8 @@ export default function App() {
         <button className={`nav-btn ${currentArena === 'hyper' ? 'active' : ''}`} onClick={() => setCurrentArena('hyper')}>🏎️ Hyper GP</button>
         <button className={`nav-btn ${currentArena === 'division' ? 'active' : ''}`} onClick={() => setCurrentArena('division')}>🧬 Division</button>
         <button className={`nav-btn ${currentArena === 'dozer' ? 'active' : ''}`} onClick={() => setCurrentArena('dozer')}>🪙 Dozer</button>
-        <button className={`nav-btn ${currentArena === 'bridge' ? 'active' : ''}`} onClick={() => setCurrentArena('bridge')}>🏗️ Bridge Test</button>
+        <button className={`nav-btn ${currentArena === 'bridge' ? 'active' : ''}`} onClick={() => setCurrentArena('bridge')}>🏗️ Bridge</button>
+        <button className={`nav-btn ${currentArena === 'tournament' ? 'active' : ''}`} onClick={() => setCurrentArena('tournament')}>🏆 Tournament (16:9)</button>
       </div>
 
       <div className="arena-content">
@@ -35,6 +37,7 @@ export default function App() {
         {currentArena === 'division' && <Arena6 />}
         {currentArena === 'dozer' && <Arena7 />}
         {currentArena === 'bridge' && <Arena8 />}
+        {currentArena === 'tournament' && <Arena9 />}
       </div>
     </div>
   );
